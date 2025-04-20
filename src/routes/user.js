@@ -18,7 +18,13 @@ router.put("/:id", userController.updateUser);
 // DELETE /api/users/:id
 router.delete("/:id", userController.deleteUser);
 
-// Đổi mật khẩu (người dùng đã đăng nhập)
+// PUT /api/users/change-password
 router.put("/change-password", auth, userController.changePassword);
+
+// GET /api/users/search?query=keyword
+router.get("/search", auth, userController.searchUsers);
+
+// GET /api/users/me
+router.get("/me", auth, userController.getCurrentUser);
 
 module.exports = router;

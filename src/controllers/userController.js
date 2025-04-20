@@ -78,3 +78,36 @@ exports.changePassword = async (req, res, next) => {
     next(err);
   }
 };
+
+// Lấy thông tin người dùng đang đăng nhập
+exports.getCurrentUser = async (req, res, next) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Tìm kiếm người dùng theo email hoặc tên (chỉ bạn bè)
+exports.searchUsers = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { email, name } = req.query;
+    if (!email && !name) {
+      return res.status(400).json({ message: "Thiếu tham số tìm kiếm" });
+    }
+    if (email) {
+      // Tìm theo email (mọi user)
+      const user = await userService.findUserByEmail(email);
+      if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      return res.json(user);
+    }
+    if (name) {
+      // Tìm theo tên trong danh sách bạn bè
+      const users = await userService.findFriendsByName(userId, name);
+      return res.json(users);
+    }
+  } catch (err) {
+    next(err);
+  }
+};
