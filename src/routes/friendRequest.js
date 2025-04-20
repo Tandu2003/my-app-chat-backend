@@ -3,22 +3,22 @@ const router = express.Router();
 const friendRequestController = require("../controllers/friendRequestController");
 const auth = require("../middleware/auth");
 
-// Gửi lời mời kết bạn
+// POST /api/friend-requests
 router.post("/", auth, friendRequestController.sendRequest);
 
-// Lấy danh sách lời mời nhận được
+// GET /api/friend-requests/received
 router.get("/received", auth, friendRequestController.getReceivedRequests);
 
-// Lấy danh sách lời mời đã gửi
+// GET /api/friend-requests/sent
 router.get("/sent", auth, friendRequestController.getSentRequests);
 
-// Chấp nhận lời mời
+// POST /api/friend-requests/:id/accept
 router.post("/:id/accept", auth, friendRequestController.acceptRequest);
 
-// Từ chối lời mời
+// POST /api/friend-requests/:id/reject
 router.post("/:id/reject", auth, friendRequestController.rejectRequest);
 
-// Xóa lời mời đã gửi (người gửi)
+// DELETE /api/friend-requests/:id
 router.delete("/:id", auth, friendRequestController.deleteRequest);
 
 module.exports = router;
