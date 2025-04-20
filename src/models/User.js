@@ -25,6 +25,7 @@ const UserSchema = new mongoose.Schema({
   lastOnline: { type: Date }, // Thời gian online cuối cùng
   createdAt: { type: Date, default: Date.now }, // Thời gian tạo tài khoản
   emailVerificationToken: { type: String }, // Token xác thực email
+  emailVerificationTokenExpires: { type: Date }, // Thời hạn token xác thực email
   passwordChangedAt: { type: Date }, // Thời điểm đổi mật khẩu cuối cùng
 });
 

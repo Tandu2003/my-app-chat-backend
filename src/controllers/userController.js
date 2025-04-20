@@ -5,7 +5,7 @@ const { comparePassword, hashPassword } = require("../utils/bcrypt");
 exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await userService.getAllUsers();
-    res.json(users);
+    res.status(200).json(users);
   } catch (err) {
     next(err);
   }
@@ -16,7 +16,7 @@ exports.getUserById = async (req, res, next) => {
   try {
     const user = await userService.getUserById(req.params.id);
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }
@@ -37,7 +37,7 @@ exports.updateUser = async (req, res, next) => {
   try {
     const user = await userService.updateUser(req.params.id, req.body);
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }
@@ -48,7 +48,7 @@ exports.deleteUser = async (req, res, next) => {
   try {
     const user = await userService.deleteUser(req.params.id);
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    res.json({ message: "Đã xóa người dùng" });
+    res.status(200).json({ message: "Đã xóa người dùng" });
   } catch (err) {
     next(err);
   }
@@ -73,7 +73,7 @@ exports.changePassword = async (req, res, next) => {
     user.password = await hashPassword(newPassword);
     await user.save();
     res.clearCookie("token"); // Xóa token cũ, buộc đăng nhập lại
-    res.json({ message: "Đổi mật khẩu thành công. Vui lòng đăng nhập lại." });
+    res.status(200).json({ message: "Đổi mật khẩu thành công. Vui lòng đăng nhập lại." });
   } catch (err) {
     next(err);
   }
