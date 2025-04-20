@@ -37,3 +37,4 @@ coverage/
 *.swp
 *.bak
 *.tmp
+*.seed.json
