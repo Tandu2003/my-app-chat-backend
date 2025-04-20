@@ -1,39 +1,63 @@
 const mongoose = require("mongoose");
 const { hashPassword } = require("../utils/bcrypt");
 
+/**
+ * UserSchema fields:
+ * - fullName: Họ và tên người dùng
+ * - bio: Tiểu sử
+ * - gender: Giới tính
+ * - birthday: Ngày sinh
+ * - email: Email người dùng (duy nhất)
+ * - password: Mật khẩu người dùng (có thể không cần nếu đăng nhập MXH)
+ * - isEmailVerified: Đã xác thực email chưa
+ * - googleId: Đăng nhập Google
+ * - facebookId: Đăng nhập Facebook
+ * - friends: Danh sách bạn bè (User[])
+ * - friendRequests: Lời mời kết bạn nhận được (FriendRequest[])
+ * - sentFriendRequests: Lời mời kết bạn đã gửi (FriendRequest[])
+ * - groupChats: Các nhóm chat đã tham gia (GroupChat[])
+ * - groupInvites: Lời mời tham gia nhóm (GroupInvite[])
+ * - blockedUsers: Danh sách người dùng bị chặn (User[])
+ * - status: Trạng thái online/offline
+ * - lastOnline: Thời gian online cuối cùng
+ * - createdAt: Thời gian tạo tài khoản
+ * - emailVerificationToken: Token xác thực email
+ * - emailVerificationTokenExpires: Thời hạn token xác thực email
+ * - passwordChangedAt: Thời điểm đổi mật khẩu cuối cùng
+ */
 const UserSchema = new mongoose.Schema({
-  fullName: { type: String, required: true }, // Họ và tên người dùng
-  bio: { type: String }, // Tiểu sử
-  gender: { type: String }, // Giới tính
-  birthday: { type: Date }, // Ngày sinh
-  email: { type: String, unique: true, required: true }, // Email người dùng
+  fullName: { type: String, required: true },
+  bio: { type: String },
+  gender: { type: String },
+  birthday: { type: Date },
+  email: { type: String, unique: true, required: true },
   password: {
     type: String,
     required: function () {
       return !this.googleId && !this.facebookId;
     },
-  }, // Mật khẩu người dùng
-  isEmailVerified: { type: Boolean, default: false }, // Đã xác thực email chưa
-  googleId: { type: String }, // Đăng nhập Google
-  facebookId: { type: String }, // Đăng nhập Facebook
-  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Danh sách bạn bè
-  friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "FriendRequest" }], // Lời mời kết bạn
-  sentFriendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "FriendRequest" }], // Lời mời kết bạn đã gửi
-  groupChats: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupChat" }], // Các nhóm chat đã tham gia
-  groupInvites: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupInvite" }], // Lời mời tham gia nhóm
-  blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Danh sách người dùng bị chặn
-  status: { type: String, enum: ["online", "offline"], default: "offline" }, // Trạng thái online/offline
-  lastOnline: { type: Date }, // Thời gian online cuối cùng
-  createdAt: { type: Date, default: Date.now }, // Thời gian tạo tài khoản
-  emailVerificationToken: { type: String }, // Token xác thực email
-  emailVerificationTokenExpires: { type: Date }, // Thời hạn token xác thực email
-  passwordChangedAt: { type: Date }, // Thời điểm đổi mật khẩu cuối cùng
+  },
+  isEmailVerified: { type: Boolean, default: false },
+  googleId: { type: String },
+  facebookId: { type: String },
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "FriendRequest" }],
+  sentFriendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "FriendRequest" }],
+  groupChats: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupChat" }],
+  groupInvites: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupInvite" }],
+  blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  status: { type: String, enum: ["online", "offline"], default: "offline" },
+  lastOnline: { type: Date },
+  createdAt: { type: Date, default: Date.now },
+  emailVerificationToken: { type: String },
+  emailVerificationTokenExpires: { type: Date },
+  passwordChangedAt: { type: Date },
 });
 
 UserSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password) {
-    this.password = await hashPassword(this.password); // mã hóa mật khẩu trước khi lưu vào DB
-    this.passwordChangedAt = new Date(); // cập nhật thời điểm đổi mật khẩu
+    this.password = await hashPassword(this.password);
+    this.passwordChangedAt = new Date();
   }
   next();
 });
