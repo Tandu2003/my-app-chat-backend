@@ -31,7 +31,7 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password) {
-    this.password = await hashPassword(this.password);
+    this.password = await hashPassword(this.password); // mã hóa mật khẩu trước khi lưu vào DB
     this.passwordChangedAt = new Date(); // cập nhật thời điểm đổi mật khẩu
   }
   next();

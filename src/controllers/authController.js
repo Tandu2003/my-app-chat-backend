@@ -13,7 +13,6 @@ exports.register = async (req, res, next) => {
     if (existingUser) {
       return res.status(400).json({ message: "Email đã được đăng ký" });
     }
-    const hashedPassword = await hashPassword(password);
 
     // Tạo token xác thực email (JWT, 15 phút)
     const emailVerificationToken = jwt.sign({ email }, jwtConfig.secret, { expiresIn: "15m" });
@@ -21,7 +20,7 @@ exports.register = async (req, res, next) => {
 
     const user = new User({
       email,
-      password: hashedPassword,
+      password,
       fullName,
       emailVerificationToken,
       emailVerificationTokenExpires,
@@ -79,9 +78,11 @@ exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+
     if (!user || !user.password) {
       return res.status(400).json({ message: "Email hoặc mật khẩu không đúng" });
     }
+
     // Kiểm tra xác thực email
     if (!user.isEmailVerified) {
       // Nếu token hết hạn, tạo lại token mới và gửi lại email xác thực
@@ -102,9 +103,12 @@ exports.login = async (req, res, next) => {
         .json({ message: "Tài khoản chưa xác thực email. Vui lòng kiểm tra email để xác thực." });
     }
     const isMatch = await comparePassword(password, user.password);
+
+    // Kiểm tra mật khẩu
     if (!isMatch) {
       return res.status(400).json({ message: "Email hoặc mật khẩu không đúng" });
     }
+
     // Tạo JWT
     const token = jwt.sign({ id: user._id }, jwtConfig.secret, {
       expiresIn: jwtConfig.expiresIn,
@@ -116,7 +120,11 @@ exports.login = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
       sameSite: "lax",
     });
-    res.status(200).json({ user, token });
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.status(200).json({ user: userObj });
   } catch (err) {
     next(err);
   }
