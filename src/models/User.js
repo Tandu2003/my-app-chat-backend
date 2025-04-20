@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
   facebookId: { type: String }, // Đăng nhập Facebook
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Danh sách bạn bè
   friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "FriendRequest" }], // Lời mời kết bạn
+  sentFriendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "FriendRequest" }], // Lời mời kết bạn đã gửi
   groupChats: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupChat" }], // Các nhóm chat đã tham gia
   groupInvites: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupInvite" }], // Lời mời tham gia nhóm
   blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Danh sách người dùng bị chặn
