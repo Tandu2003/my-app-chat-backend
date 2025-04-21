@@ -34,7 +34,7 @@ This is the backend service for **My Chat App**, a real-time chat application th
 1. **Clone the repository:**
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/Tandu2003/my-app-chat-backend
    cd my-chat-app-backend
    ```
 
