@@ -59,7 +59,7 @@ io.on("connection", (socket) => {
     if (!socket.userId || !chatId || !content) return;
     try {
       // Lưu message vào DB
-      const message = await Message.create({
+      let message = await Message.create({
         chat: chatId,
         sender: socket.userId,
         content,
@@ -67,7 +67,35 @@ io.on("connection", (socket) => {
       await Chat.findByIdAndUpdate(chatId, { $push: { messages: message._id } });
 
       // Lấy message kèm thông tin sender
-      const populatedMsg = await Message.findById(message._id).populate("sender", "fullName email");
+      let populatedMsg = await Message.findById(message._id).populate("sender", "fullName email");
+
+      // Kiểm tra nếu người nhận đang online thì chuyển trạng thái thành "delivered" hoặc "read"
+      // Lấy danh sách participants (ngoại trừ sender)
+      const chat = await Chat.findById(chatId).populate("participants", "_id");
+      if (chat && chat.participants) {
+        for (const participant of chat.participants) {
+          if (participant._id.toString() !== socket.userId.toString()) {
+            const receiverSocketId = onlineUsers.get(participant._id.toString());
+            if (receiverSocketId) {
+              // Kiểm tra nếu socket của người nhận đang ở trong phòng chat này
+              const receiverSocket = io.sockets.sockets.get(receiverSocketId);
+              if (receiverSocket && receiverSocket.rooms.has(chatId)) {
+                // Nếu đang ở trong phòng chat, đánh dấu là đã xem ("read")
+                await Message.findByIdAndUpdate(message._id, { status: "read" });
+              } else {
+                // Nếu chỉ online, đánh dấu là đã nhận ("delivered")
+                await Message.findByIdAndUpdate(message._id, { status: "delivered" });
+              }
+              // Lấy lại message đã cập nhật status
+              populatedMsg = await Message.findById(message._id).populate(
+                "sender",
+                "fullName email"
+              );
+              break; // chỉ cần 1 người nhận online là chuyển trạng thái
+            }
+          }
+        }
+      }
 
       // Gửi message cho tất cả thành viên trong phòng chat
       io.to(chatId).emit("receiveMessage", populatedMsg);
