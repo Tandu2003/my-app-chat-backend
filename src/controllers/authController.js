@@ -3,10 +3,18 @@ const jwt = require("jsonwebtoken");
 const { hashPassword, comparePassword } = require("../utils/bcrypt");
 const jwtConfig = require("../config/jwt");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
+const { registerSchema, loginSchema } = require("../utils/joi");
 
 // Đăng ký với mã hóa mật khẩu và gửi email xác thực
 exports.register = async (req, res, next) => {
   try {
+    // Validate dữ liệu đầu vào
+    const { error } = registerSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        message: error.details.map((d) => d.message).join(", "),
+      });
+    }
     const { email, password, fullName } = req.body;
     // Kiểm tra email đã tồn tại chưa
     const existingUser = await User.findOne({ email });
@@ -107,6 +115,13 @@ exports.verifyEmail = async (req, res, next) => {
 // Đăng nhập với kiểm tra mật khẩu và xác thực email
 exports.login = async (req, res, next) => {
   try {
+    // Validate dữ liệu đầu vào
+    const { error } = loginSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        message: error.details.map((d) => d.message).join(", "),
+      });
+    }
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
