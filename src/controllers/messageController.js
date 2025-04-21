@@ -4,7 +4,7 @@ const messageService = require("../services/messageService");
 exports.getMessagesByChat = async (req, res, next) => {
   try {
     const messages = await messageService.getMessagesByChat(req.params.chatId);
-    res.json(messages);
+    res.json({ messages, message: "Lấy tin nhắn thành công." });
   } catch (err) {
     next(err);
   }
@@ -15,7 +15,7 @@ exports.getMessageById = async (req, res, next) => {
   try {
     const message = await messageService.getMessageById(req.params.id);
     if (!message) return res.status(404).json({ message: "Không tìm thấy message" });
-    res.json(message);
+    res.json({ message, message: "Lấy message thành công." });
   } catch (err) {
     next(err);
   }
@@ -32,7 +32,7 @@ exports.createMessage = async (req, res, next) => {
       sender: req.user._id,
       content,
     });
-    res.status(201).json(message);
+    res.status(201).json({ message, message: "Gửi tin nhắn thành công." });
   } catch (err) {
     next(err);
   }

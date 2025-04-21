@@ -8,7 +8,7 @@ exports.sendRequest = async (req, res, next) => {
     if (sender.toString() === receiver)
       return res.status(400).json({ message: "Không thể gửi lời mời cho chính mình" });
     const request = await friendRequestService.createRequest(sender, receiver);
-    res.status(201).json(request);
+    res.status(201).json({ request, message: "Gửi lời mời kết bạn thành công." });
   } catch (err) {
     next(err);
   }
@@ -18,7 +18,7 @@ exports.sendRequest = async (req, res, next) => {
 exports.getReceivedRequests = async (req, res, next) => {
   try {
     const requests = await friendRequestService.getRequestsForUser(req.user._id);
-    res.json(requests);
+    res.json({ requests, message: "Lấy danh sách lời mời nhận được thành công." });
   } catch (err) {
     next(err);
   }
@@ -28,7 +28,7 @@ exports.getReceivedRequests = async (req, res, next) => {
 exports.getSentRequests = async (req, res, next) => {
   try {
     const requests = await friendRequestService.getSentRequests(req.user._id);
-    res.json(requests);
+    res.json({ requests, message: "Lấy danh sách lời mời đã gửi thành công." });
   } catch (err) {
     next(err);
   }
@@ -38,7 +38,7 @@ exports.getSentRequests = async (req, res, next) => {
 exports.acceptRequest = async (req, res, next) => {
   try {
     const request = await friendRequestService.acceptRequest(req.params.id, req.user._id);
-    res.json(request);
+    res.json({ request, message: "Chấp nhận lời mời kết bạn thành công." });
   } catch (err) {
     next(err);
   }
@@ -48,7 +48,7 @@ exports.acceptRequest = async (req, res, next) => {
 exports.rejectRequest = async (req, res, next) => {
   try {
     const request = await friendRequestService.rejectRequest(req.params.id, req.user._id);
-    res.json(request);
+    res.json({ request, message: "Từ chối lời mời kết bạn thành công." });
   } catch (err) {
     next(err);
   }

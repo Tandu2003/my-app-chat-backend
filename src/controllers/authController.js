@@ -159,7 +159,10 @@ exports.login = async (req, res, next) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({ user: userObj });
+    res.status(200).json({
+      user: userObj,
+      message: "Đăng nhập thành công.",
+    });
   } catch (err) {
     next(err);
   }

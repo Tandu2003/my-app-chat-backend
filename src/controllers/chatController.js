@@ -4,7 +4,7 @@ const chatService = require("../services/chatService");
 exports.getMyChats = async (req, res, next) => {
   try {
     const chats = await chatService.getAllChatsForUser(req.user._id);
-    res.json(chats);
+    res.json({ chats, message: "Lấy danh sách chat thành công." });
   } catch (err) {
     next(err);
   }
@@ -18,7 +18,7 @@ exports.getChatById = async (req, res, next) => {
     // Kiểm tra quyền truy cập
     if (!chat.participants.some((u) => u._id.equals(req.user._id)))
       return res.status(403).json({ message: "Không có quyền truy cập chat này" });
-    res.json(chat);
+    res.json({ chat, message: "Lấy chi tiết chat thành công." });
   } catch (err) {
     next(err);
   }
@@ -32,7 +32,7 @@ exports.createChat = async (req, res, next) => {
     if (participantId === req.user._id.toString())
       return res.status(400).json({ message: "Không thể chat với chính mình" });
     const chat = await chatService.createChat([req.user._id, participantId]);
-    res.status(201).json(chat);
+    res.status(201).json({ chat, message: "Tạo chat mới thành công." });
   } catch (err) {
     next(err);
   }
@@ -48,7 +48,7 @@ exports.sendMessage = async (req, res, next) => {
     if (!chat.participants.some((u) => u._id.equals(req.user._id)))
       return res.status(403).json({ message: "Không có quyền gửi tin nhắn vào chat này" });
     const message = await chatService.addMessageToChat(chat._id, req.user._id, content);
-    res.status(201).json(message);
+    res.status(201).json({ message, message: "Gửi tin nhắn thành công." });
   } catch (err) {
     next(err);
   }

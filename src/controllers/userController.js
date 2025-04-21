@@ -7,7 +7,7 @@ exports.getAllUsers = async (req, res, next) => {
     const users = await userService.getAllUsers({
       select: "-password __v", // Không trả về mật khẩu và version
     });
-    res.status(200).json(users);
+    res.status(200).json({ users, message: "Lấy danh sách người dùng thành công." });
   } catch (err) {
     next(err);
   }
@@ -20,7 +20,7 @@ exports.getUserById = async (req, res, next) => {
       select: "-password __v", // Không trả về mật khẩu và version
     });
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    res.status(200).json(user);
+    res.status(200).json({ user, message: "Lấy thông tin người dùng thành công." });
   } catch (err) {
     next(err);
   }
@@ -32,7 +32,7 @@ exports.createUser = async (req, res, next) => {
     const user = await userService.createUser(req.body, {
       select: "-password __v", // Không trả về mật khẩu và version
     });
-    res.status(201).json(user);
+    res.status(201).json({ user, message: "Tạo người dùng thành công." });
   } catch (err) {
     next(err);
   }
@@ -45,7 +45,7 @@ exports.updateUser = async (req, res, next) => {
       select: "-password __v", // Không trả về mật khẩu và version
     });
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    res.status(200).json(user);
+    res.status(200).json({ user, message: "Cập nhật thông tin người dùng thành công." });
   } catch (err) {
     next(err);
   }
@@ -90,7 +90,9 @@ exports.changePassword = async (req, res, next) => {
 // Lấy thông tin người dùng đang đăng nhập
 exports.getCurrentUser = async (req, res, next) => {
   try {
-    res.status(200).json(req.user);
+    res
+      .status(200)
+      .json({ user: req.user, message: "Lấy thông tin người dùng hiện tại thành công." });
   } catch (err) {
     next(err);
   }
@@ -110,12 +112,12 @@ exports.searchUsers = async (req, res, next) => {
         select: "-password __v", // Không trả về mật khẩu và version
       });
       if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-      return res.json(user);
+      return res.json({ user, message: "Tìm kiếm người dùng theo email thành công." });
     }
     if (name) {
       // Tìm theo tên trong danh sách bạn bè
       const users = await userService.findFriendsByName(userId, name);
-      return res.json(users);
+      return res.json({ users, message: "Tìm kiếm bạn bè theo tên thành công." });
     }
   } catch (err) {
     next(err);

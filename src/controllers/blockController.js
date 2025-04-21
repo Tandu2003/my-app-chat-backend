@@ -30,7 +30,7 @@ exports.unblockUser = async (req, res, next) => {
 exports.getBlockedUsers = async (req, res, next) => {
   try {
     const users = await blockService.getBlockedUsers(req.user._id);
-    res.json(users.map((b) => b.blocked));
+    res.json({ users: users.map((b) => b.blocked), message: "Lấy danh sách đã chặn thành công." });
   } catch (err) {
     next(err);
   }
@@ -40,7 +40,10 @@ exports.getBlockedUsers = async (req, res, next) => {
 exports.getBlockedByUsers = async (req, res, next) => {
   try {
     const users = await blockService.getBlockedByUsers(req.user._id);
-    res.json(users.map((b) => b.blocker));
+    res.json({
+      users: users.map((b) => b.blocker),
+      message: "Lấy danh sách bị chặn bởi thành công.",
+    });
   } catch (err) {
     next(err);
   }
