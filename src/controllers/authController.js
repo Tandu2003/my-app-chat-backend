@@ -109,6 +109,10 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ message: "Email hoặc mật khẩu không đúng" });
     }
 
+    // Cập nhật trạng thái online
+    user.status = "online";
+    await user.save();
+
     // Tạo JWT
     const token = jwt.sign({ id: user._id }, jwtConfig.secret, {
       expiresIn: jwtConfig.expiresIn,
@@ -131,7 +135,15 @@ exports.login = async (req, res, next) => {
 };
 
 // Đăng xuất: xóa cookie token
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+  try {
+    // Nếu đã xác thực, cập nhật trạng thái offline
+    if (req.user) {
+      await User.findByIdAndUpdate(req.user._id, { status: "offline", lastOnline: new Date() });
+    }
+  } catch (e) {
+    // Không cần xử lý lỗi ở đây, tiếp tục đăng xuất
+  }
   res.clearCookie("token");
   res.status(200).json({ message: "Đăng xuất thành công" });
 };

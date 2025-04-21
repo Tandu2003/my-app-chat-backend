@@ -55,9 +55,14 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre("save", async function (next) {
+  // Mã hóa mật khẩu trước khi lưu vào DB
   if (this.isModified("password") && this.password) {
     this.password = await hashPassword(this.password);
     this.passwordChangedAt = new Date();
+  }
+  // Cập nhật lastOnline nếu status chuyển thành offline
+  if (this.isModified("status") && this.status === "offline") {
+    this.lastOnline = new Date();
   }
   next();
 });
