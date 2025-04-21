@@ -8,6 +8,7 @@ const onlineUsers = new Map();
 const handleConnection = require("./sockets/connection");
 const handleJoinChats = require("./sockets/joinChats");
 const handleSendMessage = require("./sockets/sendMessage");
+const handleFriendRequest = require("./sockets/friendRequest");
 
 module.exports = function (io) {
   io.use(async (socket, next) => {
@@ -28,6 +29,8 @@ module.exports = function (io) {
     socket.on("joinChats", (chatIds) => handleJoinChats(io, socket, chatIds));
 
     socket.on("sendMessage", (data) => handleSendMessage(io, socket, data, onlineUsers));
+
+    socket.on("sendFriendRequest", (data) => handleFriendRequest(io, socket, data, onlineUsers));
 
     socket.on("disconnect", () => {
       if (socket.userId) {
