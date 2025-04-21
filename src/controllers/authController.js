@@ -49,6 +49,30 @@ exports.verifyEmail = async (req, res, next) => {
     try {
       payload = jwt.verify(token, jwtConfig.secret);
     } catch (err) {
+      // Nếu token hết hạn hoặc không hợp lệ, thử tìm user theo token
+      const user = await User.findOne({ emailVerificationToken: token });
+      if (
+        user &&
+        user.emailVerificationTokenExpires &&
+        user.emailVerificationTokenExpires < Date.now()
+      ) {
+        // Tạo token mới và gửi lại email xác thực
+        const newToken = jwt.sign({ email: user.email }, jwtConfig.secret, { expiresIn: "15m" });
+        user.emailVerificationToken = newToken;
+        user.emailVerificationTokenExpires = Date.now() + 15 * 60 * 1000;
+        await user.save();
+        await sendVerificationEmail(user.email, newToken);
+        return res.status(400).json({
+          message:
+            "Mã xác thực đã hết hạn. Một email xác thực mới đã được gửi, vui lòng kiểm tra email.",
+        });
+      }
+      // Nếu user đã xác thực rồi
+      if (user && user.isEmailVerified) {
+        return res
+          .status(200)
+          .json({ message: "Email đã được xác thực trước đó. Bạn có thể đăng nhập." });
+      }
       return res.status(400).json({ message: "Token xác thực không hợp lệ hoặc đã hết hạn" });
     }
 
@@ -57,6 +81,13 @@ exports.verifyEmail = async (req, res, next) => {
       emailVerificationToken: token,
       emailVerificationTokenExpires: { $gt: Date.now() },
     });
+
+    // Nếu user đã xác thực rồi
+    if (user && user.isEmailVerified) {
+      return res
+        .status(200)
+        .json({ message: "Email đã được xác thực trước đó. Bạn có thể đăng nhập." });
+    }
 
     if (!user) {
       return res.status(400).json({ message: "Token xác thực không hợp lệ hoặc đã hết hạn" });

@@ -55,7 +55,6 @@ This is the backend service for **My Chat App**, a real-time chat application th
    CLIENT_URL=http://localhost:5173
    EMAIL_USER=your_gmail@gmail.com
    EMAIL_PASS=your_gmail_app_password
-   EMAIL_FROM=no-reply@mychatapp.com
    ```
 
 4. **Start the server:**
